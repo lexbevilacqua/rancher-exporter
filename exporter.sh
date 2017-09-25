@@ -70,22 +70,26 @@ function export_rancher()  {
     log "# Start exporter..."
     log "################################################"
     
-    echo "Switch to dir: ${DIR}/${PROJECT}/${ENVIROMENT}"
+    log "Switch to dir: ${DIR}/${PROJECT}/${ENVIROMENT}"
+    if [ ! -d ${DIR}/${PROJECT}/${ENVIROMENT} ]
+    then
+        mkdir "${DIR}/${PROJECT}/${ENVIROMENT}"
+    fi
     cd "${PROJECT}/${ENVIROMENT}"
 
     for i in `${RANCHER} stacks ls | awk '{print $2}' | grep -v 'NAME'`
     do
-        echo 'Exporting stack ${i}' 
+        log 'Exporting stack ${i}' 
         ${RANCHER} export ${i}
     done
 
-    echo "Switch to dir: ${DIR}/${PROJECT}"
+    log "Switch to dir: ${DIR}/${PROJECT}"
     cd ${DIR}/${PROJECT}
     
-    echo "git adding changes"
+    log "git adding changes"
     git add .
 
-    echo "git commit "
+    log "git commit "
     git commit -m "${MESSAGE}"
 
     n=$?
@@ -123,7 +127,7 @@ test_variables
 while :
 do
 	export_rancher
-    echo "Waiting ${SECONDS_WAIT} seconds..."
+    log "Waiting ${SECONDS_WAIT} seconds..."
 	sleep $SECONDS_WAIT
 done
 
