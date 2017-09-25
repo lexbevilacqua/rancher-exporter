@@ -27,7 +27,7 @@ function test_variables () {
 
     if [ -z "$GIT_URL" ]
     then
-        log 'Is mandatory declare this git url: GIT_URL'
+        log 'Is mandatory declare git url in GIT_URL'
         exit 1
     fi
 
@@ -77,9 +77,12 @@ function export_rancher()  {
     fi
     cd "${PROJECT}/${ENVIROMENT}"
 
+    log "Stacks"
+    ${RANCHER} stacks ls
+
     for i in `${RANCHER} stacks ls | awk '{print $2}' | grep -v 'NAME'`
     do
-        log 'Exporting stack ${i}' 
+        log "Exporting stack ${i}" 
         ${RANCHER} export ${i}
     done
 
