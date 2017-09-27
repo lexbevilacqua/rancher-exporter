@@ -3,31 +3,26 @@
 DIR=`dirname $0`
 RANCHER="${DIR}/rancher"
 
-function log () {
-    AGORA=`date '+%Y%m%d%H%M%S'`
-    echo "$AGORA - $1"
-}
-
 function test_variables () {
 
-    log 'Testing required variables'
+    echo 'Testing required variables'
 
     if [ -z "$RANCHER_URL" ] || [ -z "$RANCHER_ACCESS_KEY" ] || [ -z "$RANCHER_SECRET_KEY" ] 
     then
-        log 'Is mandatory declare this variables: RANCHER_URL, RANCHER_ACCESS_KEY, RANCHER_SECRET_KEY'
-        log 'more info on \"ACCOUNT API KEYS\" http://http://rancher.com/docs/rancher/v1.2/en/api/v2-beta/api-keys/'
+        echo 'Is mandatory declare this variables: RANCHER_URL, RANCHER_ACCESS_KEY, RANCHER_SECRET_KEY'
+        echo 'more info on \"ACCOUNT API KEYS\" http://http://rancher.com/docs/rancher/v1.2/en/api/v2-beta/api-keys/'
         exit 1
     fi
 
     if [ -z "$SECONDS_WAIT" ]
     then
-        log 'SECONDS_WAIT is set to default: 86400( 1 day )'
+        echo 'SECONDS_WAIT is set to default: 86400( 1 day )'
         export SECONDS_WAIT=86400
     fi
 
     if [ -z "$GIT_URL" ]
     then
-        log 'Is mandatory declare git url in GIT_URL'
+        echo 'Is mandatory declare git url in GIT_URL'
         exit 1
     fi
 
@@ -38,7 +33,6 @@ function test_variables () {
     fi
 
     git config --global http.sslVerify "false"
-    git clone $GIT_URL
 
     export PROJECT=`echo $GIT_URL | sed -e 's/.*\///g' | cut -d'.' -f1`
         
@@ -49,50 +43,53 @@ function test_variables () {
         MESSAGE="${MESSAGE} enviroment: ${ENVIROMENT}"
     fi
 
-    log "################################################"
-    log "#  DIR:.................: ${DIR}"
-    log "#  RANCHER_URL:.........: ${RANCHER_URL}"
-    log "#  RANCHER_ACCESS_KEY:..: ${RANCHER_ACCESS_KEY}"
-    log "#  SECONDS_WAIT:........: ${SECONDS_WAIT}"
-    log "#  GIT_URL:.............: ${GIT_URL}"
-    log "#  GIT_USER_NAME:.......: ${GIT_USER_NAME}"
-    log "#  GIT_USER_EMAIL:......: ${GIT_USER_EMAIL}"
-    log "#  PROJECT:.............: ${PROJECT}"
-    log "#  ENVIROMENT:..........: ${ENVIROMENT}"
-    log "#  MESSAGE:.............: ${MESSAGE}"
-    log "################################################"
+    echo "################################################"
+    echo "#  DIR:.................: ${DIR}"
+    echo "#  RANCHER_URL:.........: ${RANCHER_URL}"
+    echo "#  RANCHER_ACCESS_KEY:..: ${RANCHER_ACCESS_KEY}"
+    echo "#  SECONDS_WAIT:........: ${SECONDS_WAIT}"
+    echo "#  GIT_URL:.............: ${GIT_URL}"
+    echo "#  GIT_USER_NAME:.......: ${GIT_USER_NAME}"
+    echo "#  GIT_USER_EMAIL:......: ${GIT_USER_EMAIL}"
+    echo "#  PROJECT:.............: ${PROJECT}"
+    echo "#  ENVIROMENT:..........: ${ENVIROMENT}"
+    echo "#  MESSAGE:.............: ${MESSAGE}"
+    echo "################################################"
 
 }
 
 function export_rancher()  {
 
-    log "################################################"
-    log "# Start exporter..."
-    log "################################################"
+    echo "################################################"
+    echo "# Start exporter..."
+    echo "################################################"
+
+    echo "Cloning ${PROJECT} ..."
+    git clone $GIT_URL
     
-    log "Switch to dir: ${DIR}/${PROJECT}/${ENVIROMENT}"
+    echo "Switch to dir: ${DIR}/${PROJECT}/${ENVIROMENT}"
     if [ ! -d ${DIR}/${PROJECT}/${ENVIROMENT} ]
     then
         mkdir "${DIR}/${PROJECT}/${ENVIROMENT}"
     fi
     cd "${PROJECT}/${ENVIROMENT}"
 
-    log "Stacks"
+    echo "Stacks"
     ${RANCHER} stacks ls
 
     for i in `${RANCHER} stacks ls | awk '{print $2}' | grep -v 'NAME'`
     do
-        log "Exporting stack ${i}" 
+        echo "Exporting stack ${i}" 
         ${RANCHER} export ${i}
     done
 
-    log "Switch to dir: ${DIR}/${PROJECT}"
+    echo "Switch to dir: ${DIR}/${PROJECT}"
     cd ${DIR}/${PROJECT}
     
-    log "git adding changes"
+    echo "git adding changes"
     git add .
 
-    log "git commit "
+    echo "git commit "
     git commit -m "${MESSAGE}"
 
     n=$?
