@@ -127,7 +127,7 @@ test_variables
 while :
 do
 	export_rancher
-    log "Waiting ${SECONDS_WAIT} seconds..."
+    echo "Waiting ${SECONDS_WAIT} seconds..."
 	sleep $SECONDS_WAIT
 done
 
